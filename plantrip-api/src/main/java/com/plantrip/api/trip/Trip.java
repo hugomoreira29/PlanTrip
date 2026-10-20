@@ -1,8 +1,11 @@
 package com.plantrip.api.trip;
 
+import com.plantrip.api.day.Day;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "trips")
@@ -22,6 +25,9 @@ public class Trip {
 
     @Column(nullable = false)
     private LocalDate endDate;
+
+    @OneToMany(mappedBy = "trip")
+    private List<Day> days = new ArrayList<>();
 
     public Trip(String name, String destination, LocalDate startDate, LocalDate endDate) {
         this.name = name;
@@ -66,5 +72,9 @@ public class Trip {
 
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
+    }
+
+    public List<Day> getDays() {
+        return days;
     }
 }
