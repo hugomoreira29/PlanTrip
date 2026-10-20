@@ -2,5 +2,5 @@ package com.plantrip.api.trip;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface TripRepository extends JpaRepository<Trip,Long> {
+public interface TripRepository extends JpaRepository<Trip, Long> {
 }
