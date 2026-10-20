@@ -1,2 +1,15 @@
 services:
-  $END$
+  db:
+    image: postgres:17
+    container_name: plantrip-db
+    environment:
+      POSTGRES_DB: plantrip
+      POSTGRES_USER: plantrip
+      POSTGRES_PASSWORD: plantrip
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
