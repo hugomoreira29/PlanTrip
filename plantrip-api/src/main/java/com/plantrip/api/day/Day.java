@@ -1,9 +1,12 @@
 package com.plantrip.api.day;
 
+import com.plantrip.api.place.Place;
 import com.plantrip.api.trip.Trip;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "days")
@@ -18,6 +21,9 @@ public class Day {
 
     @Column(nullable = false)
     private LocalDate dayDate;
+
+    @OneToMany(mappedBy = "day")
+    private List<Place> places = new ArrayList<>();
 
     public Day(Trip trip, LocalDate dayDate) {
         this.trip = trip;
@@ -44,5 +50,9 @@ public class Day {
 
     public void setDayDate(LocalDate dayDate) {
         this.dayDate = dayDate;
+    }
+
+    public List<Place> getPlaces() {
+        return places;
     }
 }
