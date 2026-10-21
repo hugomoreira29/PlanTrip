@@ -1,0 +1,6 @@
+CREATE TABLE places(
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY NOT NULL,
+    day_id BIGINT NOT NULL REFERENCES days(id) ON DELETE CASCADE,
+    name varchar(100) NOT NULL,
+    description varchar(150)
+);
