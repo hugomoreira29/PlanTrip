@@ -35,4 +35,19 @@ public class TripService {
         Trip saved = tripRepository.save(trip);
         return TripResponse.from(saved);
     }
+
+    public TripResponse update(Long id, TripRequest request) {
+        if (request.endDate().isBefore(request.startDate())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "End date cannot be before start date");
+        }
+        Trip trip = tripRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found"));
+
+        trip.setName(request.name());
+        trip.setDestination(request.destination());
+        trip.setStartDate(request.startDate());
+        trip.setEndDate(request.endDate());
+        tripRepository.save(trip);
+        return TripResponse.from(trip);
+    }
 }

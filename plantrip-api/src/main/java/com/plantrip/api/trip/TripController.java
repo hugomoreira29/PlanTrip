@@ -30,4 +30,9 @@ public class TripController {
     public TripResponse create(@Valid @RequestBody TripRequest request) {
         return tripService.create(request);
     }
+
+    @PutMapping("/{id}")
+    public TripResponse update(@Valid @PathVariable Long id, @RequestBody TripRequest request) {
+        return tripService.update(id, request);
+    }
 }
