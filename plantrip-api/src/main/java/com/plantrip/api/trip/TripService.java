@@ -50,4 +50,10 @@ public class TripService {
         tripRepository.save(trip);
         return TripResponse.from(trip);
     }
+
+    public void delete(Long id) {
+        Trip trip = tripRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found"));
+        tripRepository.delete(trip);
+    }
 }

@@ -32,7 +32,13 @@ public class TripController {
     }
 
     @PutMapping("/{id}")
-    public TripResponse update(@Valid @PathVariable Long id, @RequestBody TripRequest request) {
+    public TripResponse update(@PathVariable Long id, @Valid @RequestBody TripRequest request) {
         return tripService.update(id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        tripService.delete(id);
     }
 }
