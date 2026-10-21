@@ -26,4 +26,13 @@ public class TripService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found"));
         return TripResponse.from(trip);
     }
+
+    public TripResponse create(TripRequest request) {
+        if (request.endDate().isBefore(request.startDate())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "End date cannot be before start date");
+        }
+        Trip trip = new Trip(request.name(), request.destination(), request.startDate(), request.endDate());
+        Trip saved = tripRepository.save(trip);
+        return TripResponse.from(saved);
+    }
 }
