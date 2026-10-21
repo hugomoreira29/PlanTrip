@@ -1,6 +1,7 @@
 package com.plantrip.api.trip;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,5 +19,10 @@ public class TripController {
     @GetMapping
     public List<TripResponse> findAll() {
         return tripService.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public TripResponse findById(@PathVariable Long id) {
+        return tripService.findById(id);
     }
 }

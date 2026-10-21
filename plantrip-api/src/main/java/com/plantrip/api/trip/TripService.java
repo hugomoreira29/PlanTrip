@@ -1,6 +1,8 @@
 package com.plantrip.api.trip;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -19,4 +21,9 @@ public class TripService {
                 .toList();
     }
 
+    public TripResponse findById(Long id) {
+        Trip trip = tripRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found"));
+        return TripResponse.from(trip);
+    }
 }
