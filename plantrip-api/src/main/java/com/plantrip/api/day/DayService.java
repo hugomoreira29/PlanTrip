@@ -32,6 +32,9 @@ public class DayService {
     public DayResponse create(Long tripId, DayRequest dayRequest) {
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found"));
+        if (dayRequest.dayDate().isBefore(trip.getStartDate()) || dayRequest.dayDate().isAfter(trip.getEndDate())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Day must be within the trip dates");
+        }
         Day day = new Day(trip, dayRequest.dayDate());
         Day saved = dayRepository.save(day);
         return DayResponse.from(saved);
