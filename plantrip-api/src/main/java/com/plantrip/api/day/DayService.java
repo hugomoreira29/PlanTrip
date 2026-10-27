@@ -32,10 +32,30 @@ public class DayService {
     public DayResponse create(Long tripId, DayRequest dayRequest) {
         Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found"));
-        if (dayRequest.dayDate().isBefore(trip.getStartDate()) || dayRequest.dayDate().isAfter(trip.getEndDate())){
+        if (dayRequest.dayDate().isBefore(trip.getStartDate()) || dayRequest.dayDate().isAfter(trip.getEndDate())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Day must be within the trip dates");
         }
         Day day = new Day(trip, dayRequest.dayDate());
+        Day saved = dayRepository.save(day);
+        return DayResponse.from(saved);
+    }
+
+    public void delete(Long dayId) {
+        if (!dayRepository.existsById(dayId)) {
+            throw new
+                    ResponseStatusException(HttpStatus.NOT_FOUND, "Day not found");
+        }
+        dayRepository.deleteById(dayId);
+    }
+
+    public DayResponse update(Long dayId, DayRequest dayRequest) {
+        Day day = dayRepository.findById(dayId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Day not found"));
+        Trip trip = day.getTrip();
+        if (dayRequest.dayDate().isBefore(trip.getStartDate()) || dayRequest.dayDate().isAfter(trip.getEndDate())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Day must be within the trip dates");
+        }
+        day.setDayDate(dayRequest.dayDate());
         Day saved = dayRepository.save(day);
         return DayResponse.from(saved);
     }

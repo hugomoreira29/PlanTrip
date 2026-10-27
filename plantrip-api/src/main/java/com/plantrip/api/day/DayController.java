@@ -25,4 +25,15 @@ public class DayController {
     public DayResponse create(@PathVariable Long tripId, @Valid @RequestBody DayRequest dayRequest) {
         return dayService.create(tripId, dayRequest);
     }
+
+    @DeleteMapping("/days/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Long id) {
+        dayService.delete(id);
+    }
+
+    @PutMapping("/days/{id}")
+    public DayResponse update(@PathVariable Long id, @Valid @RequestBody DayRequest dayRequest) {
+        return dayService.update(id, dayRequest);
+    }
 }
