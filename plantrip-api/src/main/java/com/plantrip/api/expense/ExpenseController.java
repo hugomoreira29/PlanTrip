@@ -36,4 +36,9 @@ public class ExpenseController {
     public void delete(@PathVariable Long id) {
         expenseService.delete(id);
     }
+
+    @GetMapping("/trips/{tripId}/expenses/summary")
+    public ExpenseSummaryResponse summary(@PathVariable Long tripId, @RequestParam String currency) {
+        return expenseService.summary(tripId, currency);
+    }
 }
