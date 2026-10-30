@@ -3,6 +3,8 @@ package com.plantrip.api.place;
 import com.plantrip.api.day.Day;
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name= "places")
 public class Place {
@@ -19,6 +21,12 @@ public class Place {
 
     @Column(length = 150)
     private String description;
+
+    @Column(precision = 9, scale = 7)
+    private BigDecimal latitude;
+
+    @Column(precision = 10, scale = 7)
+    private BigDecimal longitude;
 
     public Place(Day day, String name, String description) {
         this.day = day;
@@ -54,5 +62,21 @@ public class Place {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public BigDecimal getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(BigDecimal latitude) {
+        this.latitude = latitude;
+    }
+
+    public BigDecimal getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(BigDecimal longitude) {
+        this.longitude = longitude;
     }
 }

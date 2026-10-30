@@ -1,0 +1,1 @@
+ALTER TABLE places ADD COLUMN latitude DECIMAL(9, 7), ADD COLUMN longitude DECIMAL(10, 7);
