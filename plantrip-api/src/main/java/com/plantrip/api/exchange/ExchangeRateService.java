@@ -1,5 +1,6 @@
 package com.plantrip.api.exchange;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -15,6 +16,7 @@ public class ExchangeRateService {
                 .build();
     }
 
+    @Cacheable("exchange")
     public BigDecimal getRate(String from, String to) {
         FrankfurterResponse response = restClient.get()
                 .uri(uriBuilder -> uriBuilder
