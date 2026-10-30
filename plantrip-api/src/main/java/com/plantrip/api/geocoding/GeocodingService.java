@@ -1,5 +1,6 @@
 package com.plantrip.api.geocoding;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -13,6 +14,7 @@ public class GeocodingService {
                 .build();
     }
 
+    @Cacheable("geocoding")
     public NominatimResult[] search(String query) {
         return restClient.get()
                 .uri(uriBuilder -> uriBuilder
