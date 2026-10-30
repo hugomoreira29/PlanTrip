@@ -18,6 +18,9 @@ public class ExchangeRateService {
 
     @Cacheable("exchange")
     public BigDecimal getRate(String from, String to) {
+        if (from.equals(to)) {
+            return BigDecimal.ONE;
+        }
         FrankfurterResponse response = restClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/v1/latest")
