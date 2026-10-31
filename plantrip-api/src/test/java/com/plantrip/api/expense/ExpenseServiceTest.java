@@ -8,12 +8,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.server.ResponseStatusException;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -42,5 +45,12 @@ public class ExpenseServiceTest {
         assertEquals(new BigDecimal("61.20"), result.total());
         assertEquals(new BigDecimal("45.00"),result.byCategory().get(ExpenseCategory.FOOD));
         assertEquals(new BigDecimal("16.20"),result.byCategory().get(ExpenseCategory.TRANSPORT));
+    }
+
+    @Test
+    void summaryThrowsWhenTripNotFound(){
+        when(tripRepository.existsById(99L)).thenReturn(false);
+
+        assertThrows(ResponseStatusException.class, () -> expenseService.summary(99L, "EUR"));
     }
 }
