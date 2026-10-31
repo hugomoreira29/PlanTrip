@@ -1,6 +1,5 @@
 package com.plantrip.api.expense;
 
-import com.plantrip.api.day.DayResponse;
 import com.plantrip.api.exchange.ExchangeRateService;
 import com.plantrip.api.trip.Trip;
 import com.plantrip.api.trip.TripRepository;
@@ -9,8 +8,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static java.math.RoundingMode.HALF_UP;
 
 @Service
 public class ExpenseService {
@@ -74,12 +76,16 @@ public class ExpenseService {
                 .toList();
 
         BigDecimal total = BigDecimal.ZERO;
+        Map<ExpenseCategory, BigDecimal> byCategory = new HashMap<>();
         for (ExpenseResponse expenseResponse : expenses) {
             BigDecimal rate = exchangeRateService.getRate(expenseResponse.currency(), currency);
             BigDecimal converted = rate.multiply(expenseResponse.amount());
             total = total.add(converted);
+            BigDecimal current = byCategory.getOrDefault(expenseResponse.category(), BigDecimal.ZERO);
+            byCategory.put(expenseResponse.category(), current.add(converted));
         }
-        total = total.setScale(2, RoundingMode.HALF_EVEN);
-        return new ExpenseSummaryResponse(currency,total,null);
+        total = total.setScale(2, HALF_UP);
+        byCategory.replaceAll((category,value) -> value.setScale(2, HALF_UP));
+        return new ExpenseSummaryResponse(currency, total, byCategory);
     }
 }
