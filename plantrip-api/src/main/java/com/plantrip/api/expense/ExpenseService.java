@@ -85,7 +85,7 @@ public class ExpenseService {
             byCategory.put(expenseResponse.category(), current.add(converted));
         }
         total = total.setScale(2, HALF_UP);
-        byCategory.replaceAll((category,value) -> value.setScale(2, HALF_UP));
+        byCategory.replaceAll((category, value) -> value.setScale(2, HALF_UP));
         return new ExpenseSummaryResponse(currency, total, byCategory);
     }
 }
