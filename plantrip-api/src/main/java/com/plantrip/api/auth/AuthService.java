@@ -30,4 +30,14 @@ public class AuthService {
         return UserResponse.from(saved);
 
     }
+
+    public LoginResponse login(LoginRequest request) {
+        String email = request.email().toLowerCase();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials"));
+        if(!passwordEncoder.matches(request.password(),user.getPasswordHash())){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
+        }
+        return null;
+    }
 }
