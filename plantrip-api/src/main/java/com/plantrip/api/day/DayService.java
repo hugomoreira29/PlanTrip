@@ -18,8 +18,8 @@ public class DayService {
         this.tripRepository = tripRepository;
     }
 
-    public List<DayResponse> findAllByTrip(Long tripId) {
-        if (!tripRepository.existsById(tripId)) {
+    public List<DayResponse> findAllByTrip(Long tripId, String email) {
+        if (!tripRepository.existsByIdAndOwnerEmail(tripId, email)) {
             throw new
                     ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found");
         }
@@ -29,8 +29,8 @@ public class DayService {
                 .toList();
     }
 
-    public DayResponse create(Long tripId, DayRequest dayRequest) {
-        Trip trip = tripRepository.findById(tripId)
+    public DayResponse create(Long tripId, DayRequest dayRequest, String email) {
+        Trip trip = tripRepository.findByIdAndOwnerEmail(tripId, email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found"));
         if (dayRequest.dayDate().isBefore(trip.getStartDate()) || dayRequest.dayDate().isAfter(trip.getEndDate())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Day must be within the trip dates");
@@ -40,16 +40,16 @@ public class DayService {
         return DayResponse.from(saved);
     }
 
-    public void delete(Long dayId) {
-        if (!dayRepository.existsById(dayId)) {
+    public void delete(Long dayId, String email) {
+        if (!dayRepository.existsByIdAndTripOwnerEmail(dayId, email)) {
             throw new
                     ResponseStatusException(HttpStatus.NOT_FOUND, "Day not found");
         }
         dayRepository.deleteById(dayId);
     }
 
-    public DayResponse update(Long dayId, DayRequest dayRequest) {
-        Day day = dayRepository.findById(dayId)
+    public DayResponse update(Long dayId, DayRequest dayRequest, String email) {
+        Day day = dayRepository.findByIdAndTripOwnerEmail(dayId, email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Day not found"));
         Trip trip = day.getTrip();
         if (dayRequest.dayDate().isBefore(trip.getStartDate()) || dayRequest.dayDate().isAfter(trip.getEndDate())) {
