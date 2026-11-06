@@ -23,8 +23,8 @@ public class PlaceService {
         this.geocodingService = geocodingService;
     }
 
-    public List<PlaceResponse> findAllByDay(Long dayId) {
-        if (!dayRepository.existsById(dayId)) {
+    public List<PlaceResponse> findAllByDay(Long dayId, String email) {
+        if (!dayRepository.existsByIdAndTripOwnerEmail(dayId, email)) {
             throw new
                     ResponseStatusException(HttpStatus.NOT_FOUND, "Day not found");
         }
@@ -34,8 +34,8 @@ public class PlaceService {
                 .toList();
     }
 
-    public PlaceResponse create(Long dayId, PlaceRequest placeRequest) {
-        Day day = dayRepository.findById(dayId)
+    public PlaceResponse create(Long dayId, PlaceRequest placeRequest, String email) {
+        Day day = dayRepository.findByIdAndTripOwnerEmail(dayId, email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Day not found"));
         Place place = new Place(day, placeRequest.name(), placeRequest.description());
         applyCoordinates(place);
@@ -43,16 +43,16 @@ public class PlaceService {
         return PlaceResponse.from(saved);
     }
 
-    public void delete(Long placeId) {
-        if (!placeRepository.existsById(placeId)) {
+    public void delete(Long placeId, String email) {
+        if (!placeRepository.existsByIdAndDayTripOwnerEmail(placeId, email)) {
             throw new
                     ResponseStatusException(HttpStatus.NOT_FOUND, "Place not found");
         }
         placeRepository.deleteById(placeId);
     }
 
-    public PlaceResponse update(Long placeId, PlaceRequest placeRequest) {
-        Place place = placeRepository.findById(placeId)
+    public PlaceResponse update(Long placeId, PlaceRequest placeRequest, String email) {
+        Place place = placeRepository.findByIdAndDayTripOwnerEmail(placeId, email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Place not found"));
         place.setName(placeRequest.name());
         place.setDescription(placeRequest.description());
@@ -61,16 +61,15 @@ public class PlaceService {
         return PlaceResponse.from(saved);
     }
 
-    private void applyCoordinates(Place place){
+    private void applyCoordinates(Place place) {
         NominatimResult[] results = geocodingService.search(place.getName());
-        if (results.length > 0){
+        if (results.length > 0) {
             NominatimResult firstResult = results[0];
             BigDecimal latitude = new BigDecimal(firstResult.lat());
             BigDecimal longitude = new BigDecimal(firstResult.lon());
             place.setLatitude(latitude);
             place.setLongitude(longitude);
-        }
-        else  {
+        } else {
             place.setLatitude(null);
             place.setLongitude(null);
         }

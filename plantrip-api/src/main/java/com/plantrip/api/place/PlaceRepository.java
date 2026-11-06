@@ -3,7 +3,12 @@ package com.plantrip.api.place;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PlaceRepository extends JpaRepository<Place, Long> {
     List<Place> findByDayIdOrderByIdAsc(Long dayId);
+
+    Optional<Place> findByIdAndDayTripOwnerEmail(Long id, String email);
+
+    boolean existsByIdAndDayTripOwnerEmail(Long id, String email);
 }
