@@ -1,0 +1,5 @@
+ALTER TABLE trips ADD COLUMN user_id BIGINT REFERENCES users (id) ON DELETE CASCADE;
+
+UPDATE trips SET user_id = 1 WHERE user_id IS NULL;
+
+ALTER TABLE trips ALTER COLUMN user_id SET NOT NULL;
