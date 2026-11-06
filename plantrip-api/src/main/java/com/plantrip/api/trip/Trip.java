@@ -1,6 +1,7 @@
 package com.plantrip.api.trip;
 
 import com.plantrip.api.day.Day;
+import com.plantrip.api.user.User;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -29,11 +30,16 @@ public class Trip {
     @OneToMany(mappedBy = "trip")
     private List<Day> days = new ArrayList<>();
 
-    public Trip(String name, String destination, LocalDate startDate, LocalDate endDate) {
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "user_id")
+    private User owner;
+
+    public Trip(String name, String destination, LocalDate startDate, LocalDate endDate, User owner) {
         this.name = name;
         this.destination = destination;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.owner = owner;
     }
 
     protected Trip() {}
@@ -76,5 +82,9 @@ public class Trip {
 
     public List<Day> getDays() {
         return days;
+    }
+
+    public User getOwner(){
+        return  owner;
     }
 }
