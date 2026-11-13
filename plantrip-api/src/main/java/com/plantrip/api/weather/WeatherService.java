@@ -1,5 +1,6 @@
 package com.plantrip.api.weather;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -15,7 +16,7 @@ public class WeatherService {
                 .baseUrl("https://api.open-meteo.com")
                 .build();
     }
-
+    @Cacheable("weather")
     public OpenMeteoResponse getForecast(BigDecimal latitude, BigDecimal longitude, LocalDate date) {
         OpenMeteoResponse response = restClient.get()
                 .uri(uriBuilder -> uriBuilder
