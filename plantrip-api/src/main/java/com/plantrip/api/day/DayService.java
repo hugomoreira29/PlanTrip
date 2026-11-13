@@ -19,7 +19,7 @@ public class DayService {
     }
 
     public List<DayResponse> findAllByTrip(Long tripId, String email) {
-        if (!tripRepository.existsByIdAndOwnerEmail(tripId, email)) {
+        if (!tripRepository.canAccess(tripId, email)) {
             throw new
                     ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found");
         }
@@ -30,7 +30,8 @@ public class DayService {
     }
 
     public DayResponse create(Long tripId, DayRequest dayRequest, String email) {
-        Trip trip = tripRepository.findByIdAndOwnerEmail(tripId, email)
+        if (!tripRepository.canAccess(tripId, email)) { throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found"); }
+        Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found"));
         if (dayRequest.dayDate().isBefore(trip.getStartDate()) || dayRequest.dayDate().isAfter(trip.getEndDate())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Day must be within the trip dates");
@@ -41,16 +42,16 @@ public class DayService {
     }
 
     public void delete(Long dayId, String email) {
-        if (!dayRepository.existsByIdAndTripOwnerEmail(dayId, email)) {
-            throw new
-                    ResponseStatusException(HttpStatus.NOT_FOUND, "Day not found");
-        }
-        dayRepository.deleteById(dayId);
+        Day day = dayRepository.findById(dayId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Day not found"));
+        if (!tripRepository.canAccess(day.getTrip().getId(), email)) { throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Day not found"); }
+        dayRepository.delete(day);
     }
 
     public DayResponse update(Long dayId, DayRequest dayRequest, String email) {
-        Day day = dayRepository.findByIdAndTripOwnerEmail(dayId, email)
+        Day day = dayRepository.findById(dayId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Day not found"));
+        if (!tripRepository.canAccess(day.getTrip().getId(), email)) { throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Day not found"); }
         Trip trip = day.getTrip();
         if (dayRequest.dayDate().isBefore(trip.getStartDate()) || dayRequest.dayDate().isAfter(trip.getEndDate())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Day must be within the trip dates");
