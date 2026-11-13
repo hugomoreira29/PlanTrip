@@ -38,7 +38,7 @@ public class ExpenseServiceTest {
         Expense dinner = new Expense("USD",new BigDecimal("50.00"),ExpenseCategory.FOOD,"Restaurant in New York",trip);
         Expense metro = new Expense("USD",new BigDecimal("18.00"),ExpenseCategory.TRANSPORT,"Metro from Canal St to Cathedral Pkwy (110 St)",trip);
 
-        when(tripRepository.existsByIdAndOwnerEmail(1L,"test@test.com")).thenReturn(true);
+        when(tripRepository.canAccess(1L,"test@test.com")).thenReturn(true);
         when(expenseRepository.findByTripIdOrderByAmountDesc(1L)).thenReturn(List.of(dinner,metro));
         when(exchangeRateService.getRate("USD","EUR")).thenReturn(new BigDecimal("0.9"));
 
@@ -51,7 +51,7 @@ public class ExpenseServiceTest {
 
     @Test
     void summaryThrowsWhenTripNotFound(){
-        when(tripRepository.existsByIdAndOwnerEmail(99L,"test@test.com")).thenReturn(false);
+        when(tripRepository.canAccess(99L,"test@test.com")).thenReturn(false);
 
         assertThrows(ResponseStatusException.class, () -> expenseService.summary(99L, "EUR","test@test.com"));
     }

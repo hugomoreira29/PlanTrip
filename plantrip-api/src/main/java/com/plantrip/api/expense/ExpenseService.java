@@ -27,7 +27,7 @@ public class ExpenseService {
     }
 
     public List<ExpenseResponse> findByTripId(Long tripId, String email) {
-        if (!tripRepository.existsByIdAndOwnerEmail(tripId, email)) {
+        if (!tripRepository.canAccess(tripId, email)) {
             throw new
                     ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found");
         }
@@ -38,7 +38,8 @@ public class ExpenseService {
     }
 
     public ExpenseResponse create(Long tripId, ExpenseRequest expenseRequest, String email) {
-        Trip trip = tripRepository.findByIdAndOwnerEmail(tripId, email)
+        if (!tripRepository.canAccess(tripId, email)) { throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found"); }
+        Trip trip = tripRepository.findById(tripId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found"));
         Expense expense = new Expense(expenseRequest.currency().toUpperCase(), expenseRequest.amount(), expenseRequest.category(), expenseRequest.description(), trip);
         Expense saved = expenseRepository.save(expense);
@@ -46,8 +47,9 @@ public class ExpenseService {
     }
 
     public ExpenseResponse update(Long expenseId, ExpenseRequest expenseRequest, String email) {
-        Expense expense = expenseRepository.findByIdAndTripOwnerEmail(expenseId, email)
+        Expense expense = expenseRepository.findById(expenseId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Expense not found"));
+        if (!tripRepository.canAccess(expense.getTrip().getId(), email)) { throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Expense not found"); }
         expense.setCurrency(expenseRequest.currency().toUpperCase());
         expense.setAmount(expenseRequest.amount());
         expense.setCategory(expenseRequest.category());
@@ -58,15 +60,14 @@ public class ExpenseService {
     }
 
     public void delete(Long expenseId, String email) {
-        if (!expenseRepository.existsByIdAndTripOwnerEmail(expenseId, email)) {
-            throw new
-                    ResponseStatusException(HttpStatus.NOT_FOUND, "Expense not found");
-        }
-        expenseRepository.deleteById(expenseId);
+        Expense expense = expenseRepository.findById(expenseId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Expense not found"));
+        if (!tripRepository.canAccess(expense.getTrip().getId(), email)) { throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Expense not found"); }
+        expenseRepository.delete(expense);
     }
 
     public ExpenseSummaryResponse summary(Long tripId, String currency, String email) {
-        if (!tripRepository.existsByIdAndOwnerEmail(tripId, email)) {
+        if (!tripRepository.canAccess(tripId, email)) {
             throw new
                     ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found");
         }
