@@ -1,5 +1,6 @@
 package com.plantrip.api.trip;
 
+import com.plantrip.api.user.UserResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -42,5 +43,11 @@ public class TripController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
         tripService.delete(id);
+    }
+
+    @PostMapping("/{tripId}/members")
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserResponse addMember(@AuthenticationPrincipal Jwt jwt, @PathVariable Long tripId, @Valid @RequestBody AddMemberRequest request) {
+        return tripService.addMember(jwt.getSubject(),tripId,request);
     }
 }

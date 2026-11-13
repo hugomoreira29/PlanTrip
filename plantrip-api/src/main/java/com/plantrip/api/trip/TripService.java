@@ -2,11 +2,14 @@ package com.plantrip.api.trip;
 
 import com.plantrip.api.user.User;
 import com.plantrip.api.user.UserRepository;
+import com.plantrip.api.user.UserResponse;
+import jakarta.transaction.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class TripService {
@@ -60,5 +63,24 @@ public class TripService {
         Trip trip = tripRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found"));
         tripRepository.delete(trip);
+    }
+    @Transactional
+    public UserResponse addMember(String email, Long tripId, AddMemberRequest request) {
+        Trip trip = tripRepository.findByIdAndOwnerEmail(tripId, email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found"));
+        User member = userRepository.findByEmail(request.email().toLowerCase())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        if(member.getEmail().equals(trip.getOwner().getEmail())){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You cannot add yourself in the Trip");
+        }
+
+        if (trip.getMembers().contains(member)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "User is already a member");
+        }
+
+        trip.getMembers().add(member);
+        tripRepository.save(trip);
+        return UserResponse.from(member);
     }
 }
