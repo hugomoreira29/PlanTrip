@@ -96,4 +96,10 @@ public class TripService {
         }
         return new ShareResponse(trip.getShareToken());
     }
+
+    public TripResponse findByShareToken(String shareToken) {
+        Trip trip = tripRepository.findByShareToken(shareToken)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found"));
+        return TripResponse.from(trip);
+    }
 }

@@ -17,4 +17,6 @@ public interface TripRepository extends JpaRepository<Trip, Long> {
     @Query("SELECT COUNT(t) > 0 FROM Trip t LEFT JOIN t.members m " +
             "WHERE t.id = :id AND (t.owner.email = :email OR m.email = :email)")
     boolean canAccess(@Param("id") Long id, @Param("email") String email);
+
+    Optional<Trip> findByShareToken(String shareToken);
 }
