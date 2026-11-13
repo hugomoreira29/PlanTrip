@@ -8,6 +8,7 @@ import com.plantrip.api.weather.OpenMeteoResponse;
 import com.plantrip.api.weather.WeatherService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
@@ -76,8 +77,11 @@ public class DayService {
                 .findFirst()
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No place with coordinates for this day"));
 
-        OpenMeteoResponse response = weatherService.getForecast(place.getLatitude(),place.getLongitude(),day.getDayDate());
-
-        return DayWeatherResponse.from(response);
+        try {
+            OpenMeteoResponse response = weatherService.getForecast(place.getLatitude(), place.getLongitude(), day.getDayDate());
+            return DayWeatherResponse.from(response);
+        } catch (HttpClientErrorException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Forecast not available for this date");
+        }
     }
 }
