@@ -1,5 +1,6 @@
 package com.plantrip.api.day;
 
+import com.plantrip.api.weather.DayWeatherResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -37,5 +38,10 @@ public class DayController {
     @PutMapping("/days/{id}")
     public DayResponse update(@AuthenticationPrincipal Jwt jwt, @PathVariable Long id, @Valid @RequestBody DayRequest dayRequest) {
         return dayService.update(id, dayRequest, jwt.getSubject());
+    }
+
+    @GetMapping("/days/{dayId}/weather")
+    public DayWeatherResponse getWeather(@AuthenticationPrincipal Jwt jwt, @PathVariable Long dayId) {
+        return dayService.getWeather(dayId, jwt.getSubject());
     }
 }
