@@ -2,6 +2,8 @@ package com.plantrip.api.place;
 
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,24 +18,24 @@ public class PlaceController {
     }
 
     @GetMapping("/days/{dayId}/places")
-    public List<PlaceResponse> getPlaces(@PathVariable Long dayId) {
-        return placeService.findAllByDay(dayId);
+    public List<PlaceResponse> getPlaces(@AuthenticationPrincipal Jwt jwt, @PathVariable Long dayId) {
+        return placeService.findAllByDay(dayId, jwt.getSubject());
     }
 
     @PostMapping("/days/{dayId}/places")
     @ResponseStatus(HttpStatus.CREATED)
-    public PlaceResponse create(@PathVariable Long dayId, @Valid @RequestBody PlaceRequest placeRequest) {
-        return placeService.create(dayId, placeRequest);
+    public PlaceResponse create(@AuthenticationPrincipal Jwt jwt, @PathVariable Long dayId, @Valid @RequestBody PlaceRequest placeRequest) {
+        return placeService.create(dayId, placeRequest, jwt.getSubject());
     }
 
     @DeleteMapping("/places/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
-        placeService.delete(id);
+    public void delete(@AuthenticationPrincipal Jwt jwt, @PathVariable Long id) {
+        placeService.delete(id, jwt.getSubject());
     }
 
     @PutMapping("/places/{id}")
-    public PlaceResponse update(@PathVariable Long id, @Valid @RequestBody PlaceRequest placeRequest) {
-        return placeService.update(id, placeRequest);
+    public PlaceResponse update(@AuthenticationPrincipal Jwt jwt, @PathVariable Long id, @Valid @RequestBody PlaceRequest placeRequest) {
+        return placeService.update(id, placeRequest, jwt.getSubject());
     }
 }

@@ -3,6 +3,7 @@ package com.plantrip.api.expense;
 import com.plantrip.api.exchange.ExchangeRateService;
 import com.plantrip.api.trip.Trip;
 import com.plantrip.api.trip.TripRepository;
+import com.plantrip.api.user.User;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -32,15 +33,16 @@ public class ExpenseServiceTest {
 
     @Test
     void summaryConvertsAndGroupsByCategory(){
-        Trip trip = new Trip("New York","New York", LocalDate.of(2026,11,1),LocalDate.of(2026,11,7));
+        User user = new User("test@test.com", "Test123");
+        Trip trip = new Trip("New York","New York", LocalDate.of(2026,11,1),LocalDate.of(2026,11,7),user);
         Expense dinner = new Expense("USD",new BigDecimal("50.00"),ExpenseCategory.FOOD,"Restaurant in New York",trip);
         Expense metro = new Expense("USD",new BigDecimal("18.00"),ExpenseCategory.TRANSPORT,"Metro from Canal St to Cathedral Pkwy (110 St)",trip);
 
-        when(tripRepository.existsById(1L)).thenReturn(true);
+        when(tripRepository.canAccess(1L,"test@test.com")).thenReturn(true);
         when(expenseRepository.findByTripIdOrderByAmountDesc(1L)).thenReturn(List.of(dinner,metro));
         when(exchangeRateService.getRate("USD","EUR")).thenReturn(new BigDecimal("0.9"));
 
-        ExpenseSummaryResponse result = expenseService.summary(1L, "EUR");
+        ExpenseSummaryResponse result = expenseService.summary(1L, "EUR","test@test.com");
 
         assertEquals(new BigDecimal("61.20"), result.total());
         assertEquals(new BigDecimal("45.00"),result.byCategory().get(ExpenseCategory.FOOD));
@@ -49,8 +51,8 @@ public class ExpenseServiceTest {
 
     @Test
     void summaryThrowsWhenTripNotFound(){
-        when(tripRepository.existsById(99L)).thenReturn(false);
+        when(tripRepository.canAccess(99L,"test@test.com")).thenReturn(false);
 
-        assertThrows(ResponseStatusException.class, () -> expenseService.summary(99L, "EUR"));
+        assertThrows(ResponseStatusException.class, () -> expenseService.summary(99L, "EUR","test@test.com"));
     }
 }

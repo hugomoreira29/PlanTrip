@@ -1,11 +1,14 @@
 package com.plantrip.api.trip;
 
 import com.plantrip.api.day.Day;
+import com.plantrip.api.user.User;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "trips")
@@ -29,14 +32,31 @@ public class Trip {
     @OneToMany(mappedBy = "trip")
     private List<Day> days = new ArrayList<>();
 
-    public Trip(String name, String destination, LocalDate startDate, LocalDate endDate) {
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "user_id")
+    private User owner;
+
+    @Column(unique = true, length = 64)
+    private String shareToken;
+
+    @ManyToMany
+    @JoinTable(
+            name = "trip_members",
+            joinColumns = @JoinColumn(name = "trip_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<User> members = new HashSet<>();
+
+    public Trip(String name, String destination, LocalDate startDate, LocalDate endDate, User owner) {
         this.name = name;
         this.destination = destination;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.owner = owner;
     }
 
-    protected Trip() {}
+    protected Trip() {
+    }
 
     public Long getId() {
         return id;
@@ -76,5 +96,21 @@ public class Trip {
 
     public List<Day> getDays() {
         return days;
+    }
+
+    public User getOwner() {
+        return owner;
+    }
+
+    public Set<User> getMembers() {
+        return members;
+    }
+
+    public String getShareToken() {
+        return shareToken;
+    }
+
+    public void setShareToken(String shareToken) {
+        this.shareToken = shareToken;
     }
 }
