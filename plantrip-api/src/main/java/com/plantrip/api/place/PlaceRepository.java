@@ -7,8 +7,4 @@ import java.util.Optional;
 
 public interface PlaceRepository extends JpaRepository<Place, Long> {
     List<Place> findByDayIdOrderByIdAsc(Long dayId);
-
-    Optional<Place> findByIdAndDayTripOwnerEmail(Long id, String email);
-
-    boolean existsByIdAndDayTripOwnerEmail(Long id, String email);
 }

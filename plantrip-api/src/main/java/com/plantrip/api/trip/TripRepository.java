@@ -8,11 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TripRepository extends JpaRepository<Trip, Long> {
-    List<Trip> findByOwnerEmail(String email);
-
     Optional<Trip> findByIdAndOwnerEmail(Long id, String email);
-
-    boolean existsByIdAndOwnerEmail(Long id, String email);
 
     @Query("SELECT DISTINCT t FROM Trip t LEFT JOIN t.members m " +
             "WHERE t.owner.email = :email OR m.email = :email")
