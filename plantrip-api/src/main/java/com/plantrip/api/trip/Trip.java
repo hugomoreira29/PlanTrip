@@ -36,6 +36,9 @@ public class Trip {
     @JoinColumn(name = "user_id")
     private User owner;
 
+    @Column(unique = true, length = 64)
+    private String shareToken;
+
     @ManyToMany
     @JoinTable(
             name = "trip_members",
@@ -101,5 +104,13 @@ public class Trip {
 
     public Set<User> getMembers() {
         return members;
+    }
+
+    public String getShareToken() {
+        return shareToken;
+    }
+
+    public void setShareToken(String shareToken) {
+        this.shareToken = shareToken;
     }
 }

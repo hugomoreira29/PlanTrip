@@ -50,4 +50,9 @@ public class TripController {
     public UserResponse addMember(@AuthenticationPrincipal Jwt jwt, @PathVariable Long tripId, @Valid @RequestBody AddMemberRequest request) {
         return tripService.addMember(jwt.getSubject(), tripId, request);
     }
+
+    @PostMapping("/{id}/share")
+    public ShareResponse share(@AuthenticationPrincipal Jwt jwt, @PathVariable Long id) {
+        return tripService.share(jwt.getSubject(), id);
+    }
 }

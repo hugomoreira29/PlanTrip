@@ -11,6 +11,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.Locale;
 
+import java.util.UUID;
+
 @Service
 public class TripService {
     private final TripRepository tripRepository;
@@ -83,5 +85,15 @@ public class TripService {
         trip.getMembers().add(member);
         tripRepository.save(trip);
         return UserResponse.from(member);
+    }
+
+    public ShareResponse share(String email, Long id) {
+        Trip trip = tripRepository.findByIdAndOwnerEmail(id,email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found"));
+        if (trip.getShareToken() == null) {
+            trip.setShareToken(UUID.randomUUID().toString());
+            tripRepository.save(trip);
+        }
+        return new ShareResponse(trip.getShareToken());
     }
 }
