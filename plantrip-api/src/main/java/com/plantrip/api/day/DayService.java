@@ -1,7 +1,11 @@
 package com.plantrip.api.day;
 
+import com.plantrip.api.place.Place;
 import com.plantrip.api.trip.Trip;
 import com.plantrip.api.trip.TripRepository;
+import com.plantrip.api.weather.DayWeatherResponse;
+import com.plantrip.api.weather.OpenMeteoResponse;
+import com.plantrip.api.weather.WeatherService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -12,10 +16,12 @@ import java.util.List;
 public class DayService {
     private final DayRepository dayRepository;
     private final TripRepository tripRepository;
+    private final WeatherService weatherService;
 
-    public DayService(DayRepository dayRepository, TripRepository tripRepository) {
+    public DayService(DayRepository dayRepository, TripRepository tripRepository, WeatherService weatherService) {
         this.dayRepository = dayRepository;
         this.tripRepository = tripRepository;
+        this.weatherService = weatherService;
     }
 
     public List<DayResponse> findAllByTrip(Long tripId, String email) {
@@ -59,5 +65,19 @@ public class DayService {
         day.setDayDate(dayRequest.dayDate());
         Day saved = dayRepository.save(day);
         return DayResponse.from(saved);
+    }
+
+    public DayWeatherResponse getWeather(Long dayId, String email){
+        Day day = dayRepository.findById(dayId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Day not found"));
+        if (!tripRepository.canAccess(day.getTrip().getId(), email)) { throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Day not found"); }
+        Place place = day.getPlaces().stream()
+                .filter(p -> p.getLatitude() != null)
+                .findFirst()
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No place with coordinates for this day"));
+
+        OpenMeteoResponse response = weatherService.getForecast(place.getLatitude(),place.getLongitude(),day.getDayDate());
+
+        return DayWeatherResponse.from(response);
     }
 }
