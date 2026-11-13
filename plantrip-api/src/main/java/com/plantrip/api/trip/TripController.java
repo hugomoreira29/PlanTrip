@@ -31,23 +31,23 @@ public class TripController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public TripResponse create(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody TripRequest request) {
-        return tripService.create(jwt.getSubject(),request);
+        return tripService.create(jwt.getSubject(), request);
     }
 
     @PutMapping("/{id}")
-    public TripResponse update(@PathVariable Long id, @Valid @RequestBody TripRequest request) {
-        return tripService.update(id, request);
+    public TripResponse update(@AuthenticationPrincipal Jwt jwt, @PathVariable Long id, @Valid @RequestBody TripRequest request) {
+        return tripService.update(jwt.getSubject(), id, request);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
-        tripService.delete(id);
+    public void delete(@AuthenticationPrincipal Jwt jwt, @PathVariable Long id) {
+        tripService.delete(jwt.getSubject(), id);
     }
 
     @PostMapping("/{tripId}/members")
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponse addMember(@AuthenticationPrincipal Jwt jwt, @PathVariable Long tripId, @Valid @RequestBody AddMemberRequest request) {
-        return tripService.addMember(jwt.getSubject(),tripId,request);
+        return tripService.addMember(jwt.getSubject(), tripId, request);
     }
 }

@@ -22,14 +22,15 @@ public class TripService {
     }
 
     public List<TripResponse> findAll(String email) {
-        return tripRepository.findByOwnerEmail(email)
+        return tripRepository.findAllAccessible(email)
                 .stream()
                 .map(TripResponse::from)
                 .toList();
     }
 
     public TripResponse findById(String email, Long id) {
-        Trip trip = tripRepository.findByIdAndOwnerEmail(id, email)
+        if (!tripRepository.canAccess(id, email)) { throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found"); }
+        Trip trip = tripRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found"));
         return TripResponse.from(trip);
     }
@@ -44,11 +45,11 @@ public class TripService {
         return TripResponse.from(saved);
     }
 
-    public TripResponse update(Long id, TripRequest request) {
+    public TripResponse update(String email, Long id, TripRequest request) {
         if (request.endDate().isBefore(request.startDate())){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "End date cannot be before start date");
         }
-        Trip trip = tripRepository.findById(id)
+        Trip trip = tripRepository.findByIdAndOwnerEmail(id, email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found"));
 
         trip.setName(request.name());
@@ -59,8 +60,8 @@ public class TripService {
         return TripResponse.from(trip);
     }
 
-    public void delete(Long id) {
-        Trip trip = tripRepository.findById(id)
+    public void delete(String email, Long id) {
+        Trip trip = tripRepository.findByIdAndOwnerEmail(id, email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trip not found"));
         tripRepository.delete(trip);
     }
