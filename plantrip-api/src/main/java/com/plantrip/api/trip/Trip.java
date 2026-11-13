@@ -6,7 +6,9 @@ import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "trips")
@@ -34,6 +36,14 @@ public class Trip {
     @JoinColumn(name = "user_id")
     private User owner;
 
+    @ManyToMany
+    @JoinTable(
+            name = "trip_members",
+            joinColumns = @JoinColumn(name = "trip_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<User> members = new HashSet<>();
+
     public Trip(String name, String destination, LocalDate startDate, LocalDate endDate, User owner) {
         this.name = name;
         this.destination = destination;
@@ -42,7 +52,8 @@ public class Trip {
         this.owner = owner;
     }
 
-    protected Trip() {}
+    protected Trip() {
+    }
 
     public Long getId() {
         return id;
@@ -84,7 +95,11 @@ public class Trip {
         return days;
     }
 
-    public User getOwner(){
-        return  owner;
+    public User getOwner() {
+        return owner;
+    }
+
+    public Set<User> getMembers() {
+        return members;
     }
 }
