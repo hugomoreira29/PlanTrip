@@ -4,6 +4,8 @@ import com.plantrip.api.day.Day;
 import com.plantrip.api.day.DayRepository;
 import com.plantrip.api.geocoding.GeocodingService;
 import com.plantrip.api.geocoding.NominatimResult;
+import com.plantrip.api.route.OsrmResponse;
+import com.plantrip.api.route.RouteService;
 import com.plantrip.api.trip.TripRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -18,12 +20,14 @@ public class PlaceService {
     private final DayRepository dayRepository;
     private final GeocodingService geocodingService;
     private final TripRepository tripRepository;
+    private final RouteService routeService;
 
-    public PlaceService(PlaceRepository placeRepository, DayRepository dayRepository, GeocodingService geocodingService, TripRepository tripRepository) {
+    public PlaceService(PlaceRepository placeRepository, DayRepository dayRepository, GeocodingService geocodingService, TripRepository tripRepository, RouteService routeService) {
         this.placeRepository = placeRepository;
         this.dayRepository = dayRepository;
         this.geocodingService = geocodingService;
         this.tripRepository = tripRepository;
+        this.routeService = routeService;
     }
 
     public List<PlaceResponse> findAllByDay(Long dayId, String email) {
@@ -84,5 +88,26 @@ public class PlaceService {
             place.setLatitude(null);
             place.setLongitude(null);
         }
+    }
+
+    public void optimizeRoute(Long dayId, String email) {
+        Day day = dayRepository.findById(dayId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Day not found"));
+        if (!tripRepository.canAccess(day.getTrip().getId(), email)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Day not found");
+        }
+        List<Place> withCoords = day.getPlaces().stream()
+                .filter(p -> p.getLatitude() != null)
+                .toList();
+        if (withCoords.size() < 2) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Need at least 2 places with coordinates");
+        }
+        OsrmResponse response = routeService.optimize(withCoords);
+        for (int i = 0; i < withCoords.size(); i++) {
+            Place place = withCoords.get(i);
+            Integer position = response.waypoints().get(i).waypointIndex();
+            place.setPosition(position);
+        }
+        placeRepository.saveAll(withCoords);
     }
 }
