@@ -14,6 +14,7 @@ public class RouteService {
     public RouteService() {
         this.restClient = RestClient.builder()
                 .baseUrl("https://router.project-osrm.org")
+                .defaultHeader("Accept-Encoding", "identity")
                 .build();
     }
 
