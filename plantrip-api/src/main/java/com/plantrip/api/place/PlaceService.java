@@ -36,7 +36,7 @@ public class PlaceService {
         if (!tripRepository.canAccess(day.getTrip().getId(), email)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Day not found");
         }
-        return placeRepository.findByDayIdOrderByIdAsc(dayId)
+        return placeRepository.findByDayIdOrderByPositionAscIdAsc(dayId)
                 .stream()
                 .map(PlaceResponse::from)
                 .toList();
@@ -90,7 +90,7 @@ public class PlaceService {
         }
     }
 
-    public void optimizeRoute(Long dayId, String email) {
+    public List<PlaceResponse> optimizeRoute(Long dayId, String email) {
         Day day = dayRepository.findById(dayId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Day not found"));
         if (!tripRepository.canAccess(day.getTrip().getId(), email)) {
@@ -109,5 +109,6 @@ public class PlaceService {
             place.setPosition(position);
         }
         placeRepository.saveAll(withCoords);
+        return findAllByDay(dayId, email);
     }
 }
