@@ -54,5 +54,6 @@ public class ExpenseServiceTest {
         when(tripRepository.canAccess(99L,"test@test.com")).thenReturn(false);
 
         assertThrows(ResponseStatusException.class, () -> expenseService.summary(99L, "EUR","test@test.com"));
+
     }
 }

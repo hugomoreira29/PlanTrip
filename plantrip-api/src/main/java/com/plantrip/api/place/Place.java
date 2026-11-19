@@ -28,6 +28,9 @@ public class Place {
     @Column(precision = 10, scale = 7)
     private BigDecimal longitude;
 
+    @Column
+    private Integer position;
+
     public Place(Day day, String name, String description) {
         this.day = day;
         this.name = name;
@@ -78,5 +81,13 @@ public class Place {
 
     public void setLongitude(BigDecimal longitude) {
         this.longitude = longitude;
+    }
+
+    public Integer getPosition() {
+        return position;
+    }
+
+    public void setPosition(Integer position) {
+        this.position = position;
     }
 }

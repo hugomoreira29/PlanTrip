@@ -38,4 +38,9 @@ public class PlaceController {
     public PlaceResponse update(@AuthenticationPrincipal Jwt jwt, @PathVariable Long id, @Valid @RequestBody PlaceRequest placeRequest) {
         return placeService.update(id, placeRequest, jwt.getSubject());
     }
+
+    @PostMapping("/days/{dayId}/places/optimize")
+    public List<PlaceResponse> optimize(@AuthenticationPrincipal Jwt jwt, @PathVariable Long dayId) {
+        return placeService.optimizeRoute(dayId,jwt.getSubject());
+    }
 }
